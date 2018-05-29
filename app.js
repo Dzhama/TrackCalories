@@ -31,7 +31,35 @@ const StorageCtrl = (function(){
                 items = JSON.parse(localStorage.getItem('items'));
             }
             return items;
+        },
+        updateItemStorage: function(updatedItem) {
+             //Get what we have in LS
+            let items = JSON.parse(localStorage.getItem('items'));
+            // Looping over items
+            items.forEach(function(item, index) {
+                if(updatedItem.id === item.id) {
+                    items.splice(index, 1, updatedItem);
+                }
+            });
+            //Set LS
+            localStorage.setItem('items', JSON.stringify(items));
+        },
+        deleteItemFtomStorage: function(id) {
+             //Get what we have in LS
+            let items = JSON.parse(localStorage.getItem('items'));
+            // Looping over items
+            items.forEach(function (item, index) {
+                if (id === item.id) {
+                    items.splice(index, 1);
+                }
+            });
+            //Set LS
+            localStorage.setItem('items', JSON.stringify(items));
+        },
+        clearItemsFromStorage: function() {
+            localStorage.removeItem('items');
         }
+
     }
 })();
 
@@ -48,21 +76,18 @@ const ItemCtrl = (function() {
     //Data Structure / State
     const data = {
         // items: [
-        //     // {
-        //     //     id: 0,
-        //     //     name: "Steak Diner",
-        //     //     calories: 1200
-        //     // },
-        //     // {
-        //     //     id: 1,
-        //     //     name: "Cookie",
-        //     //     calories: 400
-        //     // },
-        //     // {
-        //     //     id: 2,
-        //     //     name: "Egg",
-        //     //     calories: 200
-        //     // }
+        //     {   id: 0,
+        //         name: "Steak Diner",
+        //         calories: 1200
+        //     },
+        //     {   id: 1,
+        //         name: "Cookie",
+        //         calories: 400
+        //     },
+        //     {   id: 2,
+        //         name: "Egg",
+        //         calories: 200
+        //     }
         // ],
         items: StorageCtrl.getItemFromStorage(),
         currentItem: null,
@@ -125,10 +150,8 @@ const ItemCtrl = (function() {
             const ids = data.items.map(function(item){
                 return item.id;
             });
-
             //get index
             const index = ids.indexOf(ids);
-
             //Remove item
             data.items.splice(index, 1);
         },
@@ -147,10 +170,8 @@ const ItemCtrl = (function() {
             data.items.forEach(function(item){
                 total += item.calories
             })
-            
             // Set total calories in data structure
             data.totalCalories = total;
-
             // Return total
             return data.totalCalories;
         },
@@ -364,7 +385,6 @@ const App = (function (ItemCtrl, StorageCtrl, UICtrl) {
            //Add item to form
            UICtrl.addItemToForm();
         }
-
        e.preventDefault(e);
    }
 
@@ -380,6 +400,8 @@ const App = (function (ItemCtrl, StorageCtrl, UICtrl) {
        const totalCalories = ItemCtrl.getTotalCalories();
        //Add total Calories to UI
        UICtrl.showTotalCalories(totalCalories);
+       //Update Local storage
+       StorageCtrl.updateItemStorage(updateItem);
        //Clear Edit State
        UICtrl.clearEditState();
 
@@ -398,6 +420,8 @@ const App = (function (ItemCtrl, StorageCtrl, UICtrl) {
        const totalCalories = ItemCtrl.getTotalCalories();
        //Add total Calories to UI
        UICtrl.showTotalCalories(totalCalories);
+       // Delete item from Local Storage
+       StorageCtrl.deleteItemFtomStorage(currentItem.id);
        //Clear Edit State
        UICtrl.clearEditState();
     e.preventDefault();
@@ -413,13 +437,13 @@ const App = (function (ItemCtrl, StorageCtrl, UICtrl) {
        UICtrl.showTotalCalories(totalCalories);
        //Remove all items from UI
        UICtrl.removeItems();
-       // Get total Calories
-        //Hide list
-        UICtrl.hideList();
-
+       //Clear from Local Storage
+       StorageCtrl.clearItemsFromStorage();
+       //Hide list
+       UICtrl.hideList();
    }
 
-    // Public methods
+   // Public methods
    return {
        init: function() {
            //Clear edit state 
@@ -435,15 +459,13 @@ const App = (function (ItemCtrl, StorageCtrl, UICtrl) {
                 //Populate List with Items
                 UICtrl.populateItemList(items);
             }
-
            // Get total Calories
            const totalCalories = ItemCtrl.getTotalCalories();
            //Add total Calories to UI
            UICtrl.showTotalCalories(totalCalories);
            //Load event listeners
            loadEventListeners();
-       } 
-       
+       }
    }
 })(ItemCtrl, StorageCtrl, UICtrl);
 
