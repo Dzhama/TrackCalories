@@ -1,4 +1,39 @@
 //Storage Controller
+const StorageCtrl = (function(){
+    
+    //Public methods
+    return {
+        storeItem: function(item){
+            let items;
+            //Check if any items in LS
+            if(localStorage.getItem('items') === null){
+                items = [];
+                //Push new item
+                items.push(item);
+                //Set LS
+                localStorage.setItem('items', JSON.stringify(items));
+            }else {
+                //Get what we have in LS
+                items = JSON.parse(localStorage.getItem('items'));
+                //Push new item
+                items.push(item);
+                //Set LS
+                localStorage.setItem('items', JSON.stringify(items));
+            }
+        },
+        getItemFromStorage: function() {
+            let items;
+            //Check if any items in LS
+            if (localStorage.getItem('items') === null) {
+                items = [];
+            }else {
+                //Get what we have in LS
+                items = JSON.parse(localStorage.getItem('items'));
+            }
+            return items;
+        }
+    }
+})();
 
 ///////////////////////////////////////////////////
 //Item Controller
@@ -12,23 +47,24 @@ const ItemCtrl = (function() {
 
     //Data Structure / State
     const data = {
-        items: [
-            // {
-            //     id: 0,
-            //     name: "Steak Diner",
-            //     calories: 1200
-            // },
-            // {
-            //     id: 1,
-            //     name: "Cookie",
-            //     calories: 400
-            // },
-            // {
-            //     id: 2,
-            //     name: "Egg",
-            //     calories: 200
-            // }
-        ],
+        // items: [
+        //     // {
+        //     //     id: 0,
+        //     //     name: "Steak Diner",
+        //     //     calories: 1200
+        //     // },
+        //     // {
+        //     //     id: 1,
+        //     //     name: "Cookie",
+        //     //     calories: 400
+        //     // },
+        //     // {
+        //     //     id: 2,
+        //     //     name: "Egg",
+        //     //     calories: 200
+        //     // }
+        // ],
+        items: StorageCtrl.getItemFromStorage(),
         currentItem: null,
         totalCalories: 0
     }
@@ -259,7 +295,7 @@ const UICtrl = (function () {
 
 /////////////////////////////////////////////////////////
 //App Controller
-const App = (function (ItemCtrl, UICtrl) {
+const App = (function (ItemCtrl, StorageCtrl, UICtrl) {
    // Load Event listeners
    const loadEventListeners = function() {
        //Get Selectors
@@ -303,6 +339,8 @@ const App = (function (ItemCtrl, UICtrl) {
             const totalCalories = ItemCtrl.getTotalCalories();
             //Add total Calories to UI
             UICtrl.showTotalCalories(totalCalories);
+            // Get from LS
+            StorageCtrl.storeItem(newItem);            
             //Clear fields
             UICtrl.clearInput();
         }
@@ -407,7 +445,7 @@ const App = (function (ItemCtrl, UICtrl) {
        } 
        
    }
-})(ItemCtrl, UICtrl);
+})(ItemCtrl, StorageCtrl, UICtrl);
 
 //////////////////////////////////////////////////////////
 // Initializing App
